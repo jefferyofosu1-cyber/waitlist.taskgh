@@ -1,0 +1,29 @@
+type RequiredServerVar =
+  | "NEXT_PUBLIC_SUPABASE_URL"
+  | "SUPABASE_SERVICE_ROLE_KEY"
+  | "BREVO_API_KEY"
+  | "FLASHSMS_API_KEY"
+  | "FLASHSMS_SENDER_ID";
+
+function readRequiredServerVar(key: RequiredServerVar): string {
+  const value = process.env[key];
+  if (!value) {
+    throw new Error(`Missing required environment variable: ${key}`);
+  }
+  return value;
+}
+
+export function getServerEnv() {
+  return {
+    supabaseUrl: readRequiredServerVar("NEXT_PUBLIC_SUPABASE_URL"),
+    supabaseServiceRoleKey: readRequiredServerVar("SUPABASE_SERVICE_ROLE_KEY"),
+    brevoApiKey: readRequiredServerVar("BREVO_API_KEY"),
+    flashSmsApiKey: readRequiredServerVar("FLASHSMS_API_KEY"),
+    flashSmsSenderId: readRequiredServerVar("FLASHSMS_SENDER_ID"),
+    adminUsername: process.env.ADMIN_USERNAME,
+    adminPassword: process.env.ADMIN_PASSWORD,
+    appUrl: process.env.NEXT_PUBLIC_APP_URL,
+    metaPixelId: process.env.NEXT_PUBLIC_META_PIXEL_ID,
+    gaId: process.env.NEXT_PUBLIC_GA_ID,
+  };
+}
