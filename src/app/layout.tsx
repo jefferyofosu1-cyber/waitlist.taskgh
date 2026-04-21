@@ -16,6 +16,10 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "TaskGH Waitlist",
   description: "Join early access for trusted artisans on demand in Ghana.",
+  metadataBase: new URL("https://waitlist.taskgh.com"),
+  alternates: {
+    canonical: "/",
+  },
 };
 
 export default function RootLayout({

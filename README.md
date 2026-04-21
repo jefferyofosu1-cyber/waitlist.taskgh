@@ -23,6 +23,10 @@ npm install
 npm run dev
 ```
 
+Production app URL:
+
+- `https://waitlist.taskgh.com`
+
 ## Features
 
 - Premium mobile-first landing page
@@ -67,4 +71,7 @@ Use:
 
 - Import project in Vercel
 - Set all environment variables from `.env.example`
+- Set `NEXT_PUBLIC_APP_URL=https://waitlist.taskgh.com`
+- Add `waitlist.taskgh.com` as a custom domain in Vercel
+- Create a DNS `CNAME` record for `waitlist` pointing to Vercel
 - Deploy
