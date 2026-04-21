@@ -42,11 +42,16 @@ npm run dev
   - search by email/phone
   - CSV export
   - delete spam entries
+  - notification event logs (queued/sent/failed/delivered)
+- Notification webhook endpoint:
+  - `/api/webhooks/notifications`
+  - updates delivery statuses by `external_message_id`
 
 ## Admin protection
 
-Basic auth middleware protects:
+Session-based admin login protects dashboard and admin APIs:
 
+- `/admin/login`
 - `/admin`
 - `/api/admin/*`
 
@@ -54,6 +59,9 @@ Use:
 
 - `ADMIN_USERNAME`
 - `ADMIN_PASSWORD`
+- `ADMIN_SESSION_SECRET`
+- `NOTIFICATION_WEBHOOK_SECRET`
+- `EMAIL_LOGO_URL` (optional branded email logo)
 
 ## Deploy on Vercel
 

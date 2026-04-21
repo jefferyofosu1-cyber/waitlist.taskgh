@@ -8,10 +8,20 @@ type AdminResponse = {
   stats: { total: number; today: number; filtered: number };
 };
 
+type NotificationEvent = {
+  id: string;
+  channel: "email" | "sms";
+  provider: "brevo" | "flashsms";
+  status: "queued" | "sent" | "failed" | "delivered";
+  error_message: string | null;
+  created_at: string;
+};
+
 export function AdminDashboard() {
   const [query, setQuery] = useState("");
   const [data, setData] = useState<AdminResponse | null>(null);
   const [loading, setLoading] = useState(true);
+  const [events, setEvents] = useState<NotificationEvent[]>([]);
   const encodedQuery = useMemo(() => encodeURIComponent(query), [query]);
 
   useEffect(() => {
@@ -22,6 +32,13 @@ export function AdminDashboard() {
         if (!cancelled) {
           setData(payload);
           setLoading(false);
+        }
+      });
+    fetch("/api/admin/notifications")
+      .then((response) => response.json())
+      .then((payload: { rows: NotificationEvent[] }) => {
+        if (!cancelled) {
+          setEvents(payload.rows ?? []);
         }
       });
 
@@ -41,6 +58,11 @@ export function AdminDashboard() {
     const payload = (await response.json()) as AdminResponse;
     setData(payload);
     setLoading(false);
+  }
+
+  async function handleLogout() {
+    await fetch("/api/admin/logout", { method: "POST" });
+    window.location.href = "/admin/login";
   }
 
   return (
@@ -65,6 +87,9 @@ export function AdminDashboard() {
           <a href="/api/admin/export" className="rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white">
             Export CSV
           </a>
+          <button onClick={handleLogout} className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700">
+            Logout
+          </button>
         </div>
 
         <div className="mt-5 overflow-x-auto">
@@ -105,6 +130,35 @@ export function AdminDashboard() {
                   </tr>
                 ))
               )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div className="rounded-2xl bg-white p-4 shadow ring-1 ring-slate-100 md:p-6">
+        <h2 className="text-lg font-semibold text-slate-900">Notification Events</h2>
+        <p className="mt-1 text-sm text-slate-600">Latest email/SMS delivery lifecycle updates.</p>
+        <div className="mt-4 overflow-x-auto">
+          <table className="w-full min-w-[680px] text-left text-sm">
+            <thead className="text-slate-600">
+              <tr>
+                <th className="pb-2">Channel</th>
+                <th className="pb-2">Provider</th>
+                <th className="pb-2">Status</th>
+                <th className="pb-2">Error</th>
+                <th className="pb-2">Time</th>
+              </tr>
+            </thead>
+            <tbody>
+              {events.map((event) => (
+                <tr key={event.id} className="border-t border-slate-100">
+                  <td className="py-3">{event.channel}</td>
+                  <td className="py-3">{event.provider}</td>
+                  <td className="py-3">{event.status}</td>
+                  <td className="py-3">{event.error_message ?? "-"}</td>
+                  <td className="py-3">{new Date(event.created_at).toLocaleString()}</td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>

@@ -1,3 +1,4 @@
+import { createNotificationEvent, updateNotificationEvent } from "@/lib/notification-events";
 import { NextRequest, NextResponse } from "next/server";
 import { isRateLimited } from "@/lib/rate-limit";
 import { sendBrevoConfirmationEmail, sendFlashSmsConfirmation } from "@/lib/providers";
@@ -48,7 +49,7 @@ export async function POST(request: NextRequest) {
       ip_address: ip,
       referral_code: referralCode,
     })
-    .select("referral_code")
+    .select("id,referral_code")
     .single();
 
   if (insertResult.error) {
@@ -56,10 +57,54 @@ export async function POST(request: NextRequest) {
   }
 
   const firstName = getFirstName(parsed.data.fullName);
-  await Promise.allSettled([
+  const userId = insertResult.data.id;
+  const emailEventId = await createNotificationEvent({
+    userId,
+    channel: "email",
+    provider: "brevo",
+    status: "queued",
+  });
+  const smsEventId = await createNotificationEvent({
+    userId,
+    channel: "sms",
+    provider: "flashsms",
+    status: "queued",
+  });
+
+  const [emailResult, smsResult] = await Promise.allSettled([
     sendBrevoConfirmationEmail(parsed.data.email, firstName),
     sendFlashSmsConfirmation(parsed.data.phoneNumber, firstName),
   ]);
+
+  if (emailEventId) {
+    if (emailResult.status === "fulfilled") {
+      await updateNotificationEvent(emailEventId, {
+        status: "sent",
+        externalMessageId: emailResult.value.externalMessageId,
+        payload: emailResult.value.payload,
+      });
+    } else {
+      await updateNotificationEvent(emailEventId, {
+        status: "failed",
+        errorMessage: emailResult.reason instanceof Error ? emailResult.reason.message : "Email send failed",
+      });
+    }
+  }
+
+  if (smsEventId) {
+    if (smsResult.status === "fulfilled") {
+      await updateNotificationEvent(smsEventId, {
+        status: "sent",
+        externalMessageId: smsResult.value.externalMessageId,
+        payload: smsResult.value.payload,
+      });
+    } else {
+      await updateNotificationEvent(smsEventId, {
+        status: "failed",
+        errorMessage: smsResult.reason instanceof Error ? smsResult.reason.message : "SMS send failed",
+      });
+    }
+  }
 
   return NextResponse.json({ ok: true, referralCode: insertResult.data.referral_code });
 }

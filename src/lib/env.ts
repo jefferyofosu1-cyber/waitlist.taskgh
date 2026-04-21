@@ -25,5 +25,8 @@ export function getServerEnv() {
     appUrl: process.env.NEXT_PUBLIC_APP_URL,
     metaPixelId: process.env.NEXT_PUBLIC_META_PIXEL_ID,
     gaId: process.env.NEXT_PUBLIC_GA_ID,
+    adminSessionSecret: process.env.ADMIN_SESSION_SECRET,
+    webhookSecret: process.env.NOTIFICATION_WEBHOOK_SECRET,
+    emailLogoUrl: process.env.EMAIL_LOGO_URL,
   };
 }

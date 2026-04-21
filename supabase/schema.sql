@@ -11,6 +11,21 @@ create table if not exists public.waitlist_users (
   referral_code text unique
 );
 
+create table if not exists public.notification_events (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references public.waitlist_users (id) on delete cascade,
+  channel text not null check (channel in ('email', 'sms')),
+  provider text not null check (provider in ('brevo', 'flashsms')),
+  status text not null check (status in ('queued', 'sent', 'failed', 'delivered')),
+  external_message_id text,
+  error_message text,
+  payload jsonb not null default '{}'::jsonb,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
 create index if not exists idx_waitlist_users_created_at on public.waitlist_users (created_at desc);
 create index if not exists idx_waitlist_users_email on public.waitlist_users (email);
 create index if not exists idx_waitlist_users_phone on public.waitlist_users (phone_number);
+create index if not exists idx_notification_events_user on public.notification_events (user_id);
+create index if not exists idx_notification_events_external on public.notification_events (provider, external_message_id);

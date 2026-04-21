@@ -1,7 +1,12 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
+import { isValidAdminToken } from "@/lib/admin-auth";
 import { getSupabaseAdminClient } from "@/lib/supabase";
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  if (!isValidAdminToken(request.cookies.get("taskgh_admin_session")?.value)) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   const supabase = getSupabaseAdminClient();
   const result = await supabase
     .from("waitlist_users")
