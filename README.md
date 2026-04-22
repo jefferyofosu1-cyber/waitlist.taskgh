@@ -23,6 +23,21 @@ npm install
 npm run dev
 ```
 
+## Brevo and FlashSMS configuration
+
+Set the following provider variables in `.env.local` (and in your deployment environment):
+
+- `BREVO_API_KEY`: your Brevo API key from SMTP/API settings
+- `BREVO_SENDER_EMAIL`: verified Brevo sender email
+- `BREVO_SENDER_NAME`: sender display name for confirmation emails
+- `FLASHSMS_API_KEY`: FlashSMS API token
+- `FLASHSMS_SENDER_ID`: approved SMS sender ID (e.g. `TaskGH`)
+
+Provider behavior:
+
+- Email confirmations are sent through Brevo `POST /v3/smtp/email`
+- SMS confirmations are sent through FlashSMS `POST /api/v3/sms/send`
+
 Production app URL:
 
 - `https://waitlist.taskgh.com`

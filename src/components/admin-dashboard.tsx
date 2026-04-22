@@ -53,17 +53,20 @@ export function AdminDashboard() {
 
   useEffect(() => {
     let cancelled = false;
-    setLoading(true);
-    Promise.all([
-      fetchPage(null, true),
-      fetch("/api/admin/notifications")
-        .then((r) => r.json())
-        .then((p: { rows: NotificationEvent[] }) => {
-          if (!cancelled) setEvents(p.rows ?? []);
-        }),
-    ]).then(() => {
+    const init = async () => {
+      setLoading(true);
+      await Promise.all([
+        fetchPage(null, true),
+        fetch("/api/admin/notifications")
+          .then((r) => r.json())
+          .then((p: { rows: NotificationEvent[] }) => {
+            if (!cancelled) setEvents(p.rows ?? []);
+          }),
+      ]);
       if (!cancelled) setLoading(false);
-    });
+    };
+    init();
+
     return () => {
       cancelled = true;
     };

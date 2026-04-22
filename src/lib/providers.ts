@@ -14,7 +14,7 @@ export async function sendBrevoConfirmationEmail(email: string, firstName: strin
       "api-key": env.brevoApiKey,
     },
     body: JSON.stringify({
-      sender: { name: "TaskGH", email: "hello@taskgh.com" },
+      sender: { name: env.brevoSenderName, email: env.brevoSenderEmail },
       to: [{ email }],
       subject: "Welcome to TaskGH Early Access 🎉",
       htmlContent: buildBrandedWaitlistEmail(firstName, env.emailLogoUrl),
@@ -35,16 +35,19 @@ export async function sendBrevoConfirmationEmail(email: string, firstName: strin
 
 export async function sendFlashSmsConfirmation(phoneNumber: string, firstName: string) {
   const env = getServerEnv();
+  // Ensure phone is clean (strip + for the gateway)
+  const cleanPhone = phoneNumber.replace("+", "");
   const message = `Hi ${firstName}, thanks for joining the TaskGH waitlist. We’ll notify you when we launch. Trusted artisans on demand.`;
-  const response = await fetch("https://api.flashsmsgh.com/api/v3/sms/send", {
+  
+  const response = await fetch("https://app.flashsms.africa/api/v1/sms/send", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${env.flashSmsApiKey}`,
     },
     body: JSON.stringify({
-      sender: env.flashSmsSenderId,
-      recipients: [phoneNumber],
+      senderId: env.flashSmsSenderId,
+      recipients: [cleanPhone],
       message,
     }),
   });
@@ -54,9 +57,18 @@ export async function sendFlashSmsConfirmation(phoneNumber: string, firstName: s
     throw new Error(`FlashSMS send failed: ${errorText}`);
   }
 
-  const payload = (await response.json().catch(() => null)) as { messageId?: string; id?: string } | null;
+  const payload = (await response.json().catch(() => null)) as { 
+    success: boolean; 
+    data?: { messageId: string };
+    error?: string;
+  } | null;
+
+  if (payload?.success === false) {
+    throw new Error(`FlashSMS API Error: ${payload.error || "Unknown error"}`);
+  }
+
   return {
-    externalMessageId: payload?.messageId ?? payload?.id ?? null,
+    externalMessageId: payload?.data?.messageId ?? null,
     payload,
   } satisfies ProviderResponse;
 }

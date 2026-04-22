@@ -2,6 +2,8 @@ type RequiredServerVar =
   | "NEXT_PUBLIC_SUPABASE_URL"
   | "SUPABASE_SERVICE_ROLE_KEY"
   | "BREVO_API_KEY"
+  | "BREVO_SENDER_EMAIL"
+  | "BREVO_SENDER_NAME"
   | "FLASHSMS_API_KEY"
   | "FLASHSMS_SENDER_ID";
 
@@ -18,6 +20,8 @@ export function getServerEnv() {
     supabaseUrl: readRequiredServerVar("NEXT_PUBLIC_SUPABASE_URL"),
     supabaseServiceRoleKey: readRequiredServerVar("SUPABASE_SERVICE_ROLE_KEY"),
     brevoApiKey: readRequiredServerVar("BREVO_API_KEY"),
+    brevoSenderEmail: readRequiredServerVar("BREVO_SENDER_EMAIL"),
+    brevoSenderName: readRequiredServerVar("BREVO_SENDER_NAME"),
     flashSmsApiKey: readRequiredServerVar("FLASHSMS_API_KEY"),
     flashSmsSenderId: readRequiredServerVar("FLASHSMS_SENDER_ID"),
     adminUsername: process.env.ADMIN_USERNAME,
