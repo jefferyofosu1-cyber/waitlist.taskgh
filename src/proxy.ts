@@ -4,14 +4,20 @@ export function proxy(request: NextRequest) {
   const nonce = Buffer.from(crypto.randomUUID()).toString("base64");
   const isDev = process.env.NODE_ENV === "development";
 
-  // Build CSP — allow GA, Meta Pixel, and Supabase connections
+  // In dev: no nonce on styles so 'unsafe-inline' is honoured (Tailwind, Next.js HMR)
+  // In prod: nonce-based strict CSP
+  const scriptSrc = isDev
+    ? `'self' 'nonce-${nonce}' 'strict-dynamic' 'unsafe-eval' 'unsafe-inline' https://www.googletagmanager.com https://connect.facebook.net`
+    : `'self' 'nonce-${nonce}' 'strict-dynamic' https://www.googletagmanager.com https://connect.facebook.net`;
+
+  const styleSrc = isDev
+    ? "'self' 'unsafe-inline'"
+    : `'self' 'nonce-${nonce}'`;
+
   const cspHeader = `
     default-src 'self';
-    script-src 'self' 'nonce-${nonce}' 'strict-dynamic'
-      ${isDev ? "'unsafe-eval'" : ""}
-      https://www.googletagmanager.com
-      https://connect.facebook.net;
-    style-src 'self' 'nonce-${nonce}' ${isDev ? "'unsafe-inline'" : ""};
+    script-src ${scriptSrc};
+    style-src ${styleSrc};
     img-src 'self' blob: data:
       https://www.google-analytics.com
       https://www.facebook.com;
@@ -19,12 +25,13 @@ export function proxy(request: NextRequest) {
     connect-src 'self'
       https://www.google-analytics.com
       https://analytics.google.com
-      https://*.supabase.co;
+      https://*.supabase.co
+      ${isDev ? "ws://localhost:* http://localhost:*" : ""};
     object-src 'none';
     base-uri 'self';
     form-action 'self';
     frame-ancestors 'none';
-    upgrade-insecure-requests;
+    ${isDev ? "" : "upgrade-insecure-requests;"}
   `
     .replace(/\s{2,}/g, " ")
     .trim();
@@ -60,3 +67,4 @@ export const config = {
     },
   ],
 };
+
