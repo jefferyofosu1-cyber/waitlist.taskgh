@@ -8,8 +8,11 @@ export default async function AdminLoginPage() {
   }
 
   return (
-    <main className="min-h-screen bg-slate-50 px-4 py-16">
-      <div className="mx-auto max-w-md">
+    <main className="min-h-screen bg-slate-50 px-4 py-16 flex flex-col items-center">
+      <div className="mx-auto w-full max-w-md">
+        <div className="mb-8 flex justify-center">
+          <img src="/logo.png" alt="TaskGH" className="h-12 w-auto" />
+        </div>
         <AdminLoginForm />
       </div>
     </main>

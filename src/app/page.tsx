@@ -15,7 +15,7 @@ export default async function Home({
     <div className="min-h-screen bg-slate-50 text-slate-900">
       <main className="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
         <header className="mb-10 flex items-center justify-between">
-          <p className="text-xl font-bold text-blue-700">TaskGH</p>
+          <img src="/logo.png" alt="TaskGH" className="h-8 w-auto" />
           <Link href="#join" className="rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white">
             Join Waitlist
           </Link>
@@ -50,7 +50,10 @@ export default async function Home({
         </div>
 
         <footer className="mt-16 border-t border-slate-200 py-6 text-sm text-slate-500">
-          TaskGH - Trusted Artisans, On Demand
+          <div className="flex items-center gap-2">
+            <img src="/logo.png" alt="TaskGH" className="h-6 w-auto opacity-80" />
+            <span>TaskGH - Trusted Artisans, On Demand</span>
+          </div>
         </footer>
       </main>
     </div>

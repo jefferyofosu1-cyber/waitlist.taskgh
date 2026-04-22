@@ -10,6 +10,11 @@ type RequiredServerVar =
 function readRequiredServerVar(key: RequiredServerVar): string {
   const value = process.env[key];
   if (!value) {
+    // During build phase, some secrets might be missing. We allow this to let the build finish.
+    const isBuildPhase = process.env.NEXT_PHASE === "phase-production-build" || process.env.CI === "true";
+    if (isBuildPhase) {
+      return "";
+    }
     throw new Error(`Missing required environment variable: ${key}`);
   }
   return value;

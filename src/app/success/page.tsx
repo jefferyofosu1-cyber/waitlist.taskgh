@@ -11,8 +11,8 @@ export default async function SuccessPage({
   return (
     <main className="min-h-screen bg-slate-50 px-4 py-16">
       <div className="mx-auto max-w-xl rounded-2xl bg-white p-8 text-center shadow ring-1 ring-slate-100">
-        <p className="text-5xl">🎉</p>
-        <h1 className="mt-3 text-3xl font-bold text-slate-900">You&apos;re In 🎉</h1>
+        <img src="/logo.png" alt="TaskGH" className="mx-auto h-12 w-auto" />
+        <h1 className="mt-6 text-3xl font-bold text-slate-900">You&apos;re In 🎉</h1>
         <p className="mt-4 text-slate-600">Thanks for joining the TaskGH waitlist.</p>
         <p className="mt-1 text-slate-600">Check your SMS and email for confirmation.</p>
         {referralUrl ? (

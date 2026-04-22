@@ -76,7 +76,7 @@ export async function sendFlashSmsConfirmation(phoneNumber: string, firstName: s
 function buildBrandedWaitlistEmail(firstName: string, logoUrl?: string) {
   const logo = logoUrl
     ? `<img src="${logoUrl}" alt="TaskGH" style="height:36px;width:auto;" />`
-    : `<div style="font-size:22px;font-weight:800;letter-spacing:0.3px;">TaskGH</div>`;
+    : `<div style="font-size:24px;font-weight:800;color:#2563eb;letter-spacing:-0.5px;">TaskGH</div>`;
   return `
   <div style="background:#f8fafc;padding:24px;font-family:Inter,Arial,sans-serif;">
     <div style="max-width:600px;margin:0 auto;background:#ffffff;border-radius:16px;overflow:hidden;border:1px solid #e2e8f0;">

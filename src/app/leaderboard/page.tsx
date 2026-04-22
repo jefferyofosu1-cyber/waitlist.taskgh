@@ -54,11 +54,11 @@ export default async function LeaderboardPage() {
   return (
     <main className="min-h-screen bg-slate-50 px-4 py-16">
       <div className="mx-auto max-w-xl">
-        <div className="mb-8 text-center">
-          <Link href="/" className="text-xl font-bold text-blue-700">
-            TaskGH
+        <div className="mb-8 text-center text-center flex flex-col items-center">
+          <Link href="/">
+            <img src="/logo.png" alt="TaskGH" className="h-8 w-auto" />
           </Link>
-          <h1 className="mt-4 text-3xl font-bold text-slate-900">Referral Leaderboard</h1>
+          <h1 className="mt-6 text-3xl font-bold text-slate-900">Referral Leaderboard</h1>
           <p className="mt-2 text-slate-600">
             Top community members spreading the word about TaskGH.
           </p>
