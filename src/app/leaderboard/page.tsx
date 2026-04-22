@@ -44,7 +44,7 @@ async function getLeaderboard(): Promise<LeaderboardRow[]> {
     .filter((r): r is LeaderboardRow => r !== null);
 }
 
-export const revalidate = 60;
+export const dynamic = "force-dynamic";
 
 const MEDALS = ["🥇", "🥈", "🥉"];
 
