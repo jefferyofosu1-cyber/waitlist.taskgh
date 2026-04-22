@@ -2,22 +2,45 @@ import { NextRequest, NextResponse } from "next/server";
 import { isValidAdminToken } from "@/lib/admin-auth";
 import { getSupabaseAdminClient } from "@/lib/supabase";
 
+const PAGE_SIZE = 50;
+
 export async function GET(request: NextRequest) {
   if (!isValidAdminToken(request.cookies.get("taskgh_admin_session")?.value)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const query = request.nextUrl.searchParams.get("q")?.trim() ?? "";
+  const { searchParams } = request.nextUrl;
+  const query = searchParams.get("q")?.trim() ?? "";
+  const cursorParam = searchParams.get("cursor");
   const supabase = getSupabaseAdminClient();
+
+  // Parse cursor: "created_at|id"
+  let cursor: { created_at: string; id: string } | null = null;
+  if (cursorParam) {
+    const sep = cursorParam.lastIndexOf("|");
+    if (sep !== -1) {
+      cursor = {
+        created_at: cursorParam.slice(0, sep),
+        id: cursorParam.slice(sep + 1),
+      };
+    }
+  }
 
   let dbQuery = supabase
     .from("waitlist_users")
     .select("*", { count: "exact" })
     .order("created_at", { ascending: false })
-    .limit(500);
+    .order("id", { ascending: false })
+    .limit(PAGE_SIZE);
 
   if (query) {
     dbQuery = dbQuery.or(`email.ilike.%${query}%,phone_number.ilike.%${query}%`);
+  }
+
+  if (cursor) {
+    dbQuery = dbQuery.or(
+      `created_at.lt.${cursor.created_at},and(created_at.eq.${cursor.created_at},id.lt.${cursor.id})`,
+    );
   }
 
   const [listResult, totalResult, todayResult] = await Promise.all([
@@ -33,8 +56,16 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: listResult.error.message }, { status: 500 });
   }
 
+  const rows = listResult.data ?? [];
+  const lastRow = rows[rows.length - 1];
+  const nextCursor =
+    rows.length === PAGE_SIZE && lastRow
+      ? `${lastRow.created_at}|${lastRow.id}`
+      : null;
+
   return NextResponse.json({
-    rows: listResult.data ?? [],
+    rows,
+    nextCursor,
     stats: {
       total: totalResult.count ?? 0,
       today: todayResult.count ?? 0,

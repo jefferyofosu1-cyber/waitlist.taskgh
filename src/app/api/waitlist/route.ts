@@ -8,7 +8,7 @@ import { waitlistSchema } from "@/lib/validation";
 
 export async function POST(request: NextRequest) {
   const ip = getClientIpHeaderValue(request.headers.get("x-forwarded-for")) ?? "unknown";
-  if (isRateLimited(ip)) {
+  if (await isRateLimited(ip)) {
     return NextResponse.json({ error: "Too many attempts. Please try again soon." }, { status: 429 });
   }
 
@@ -48,6 +48,7 @@ export async function POST(request: NextRequest) {
       source: parsed.data.source || "direct",
       ip_address: ip,
       referral_code: referralCode,
+      referred_by_code: parsed.data.referralCode || null,
     })
     .select("id,referral_code")
     .single();

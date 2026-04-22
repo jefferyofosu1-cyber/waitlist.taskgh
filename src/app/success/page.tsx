@@ -24,6 +24,13 @@ export default async function SuccessPage({
         <Link href="/" className="mt-7 inline-block rounded-xl bg-blue-600 px-5 py-3 font-semibold text-white hover:bg-blue-500">
           Share with a friend
         </Link>
+        <p className="mt-4 text-sm text-slate-500">
+          See how you rank on the{" "}
+          <Link href="/leaderboard" className="text-blue-600 underline underline-offset-2">
+            referral leaderboard
+          </Link>
+          .
+        </p>
       </div>
     </main>
   );

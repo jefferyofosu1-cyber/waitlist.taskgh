@@ -8,6 +8,7 @@ export type WaitlistUser = {
   email: string;
   source: string | null;
   referral_code: string | null;
+  referred_by_code: string | null;
   ip_address: string | null;
   created_at: string;
 };
