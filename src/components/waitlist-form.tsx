@@ -11,8 +11,9 @@ type FormState = {
 };
 
 export function WaitlistForm({ source, referralCode }: { source: string; referralCode: string }) {
-  const router = useRouter();
   const [submitting, setSubmitting] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [successData, setSuccessData] = useState<{ referralCode?: string }>({});
   const [error, setError] = useState<string | null>(null);
   const [form, setForm] = useState<FormState>({
     fullName: "",
@@ -39,11 +40,61 @@ export function WaitlistForm({ source, referralCode }: { source: string; referra
       return;
     }
 
-    const query = new URLSearchParams();
-    if (data.referralCode) {
-      query.set("code", data.referralCode);
-    }
-    router.push(`/success?${query.toString()}`);
+    setSuccessData(data);
+    setIsSuccess(true);
+    setSubmitting(false);
+  }
+
+  if (isSuccess) {
+    const shareUrl = successData.referralCode 
+      ? `${window.location.origin}/?ref=${successData.referralCode}` 
+      : window.location.origin;
+
+    const handleShare = () => {
+      if (navigator.share) {
+        navigator.share({
+          title: "TaskGH Waitlist",
+          text: "Join the TaskGH waitlist for trusted artisans in Ghana.",
+          url: shareUrl,
+        });
+      } else {
+        window.open(`https://wa.me/?text=${encodeURIComponent(`Join TaskGH waitlist ${shareUrl}`)}`);
+      }
+    };
+
+    return (
+      <div className="w-full rounded-2xl bg-white p-8 text-center shadow-xl ring-1 ring-slate-100">
+        {/* Success Icon */}
+        <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-green-100">
+          <svg className="h-10 w-10 text-green-600" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+          </svg>
+        </div>
+
+        {/* Heading */}
+        <h1 className="mb-3 text-3xl font-bold text-gray-900">You’re In 🎉</h1>
+
+        {/* Message */}
+        <p className="mb-6 text-base leading-relaxed text-gray-600">
+          Thanks for joining the <span className="font-semibold text-blue-600">TaskGH</span> waitlist.
+          <br />
+          Check your SMS and email for confirmation.
+        </p>
+
+        {/* Share CTA */}
+        <button
+          onClick={handleShare}
+          className="w-full rounded-xl bg-blue-600 py-3 font-semibold text-white transition duration-200 hover:bg-blue-700"
+        >
+          Share with a Friend
+        </button>
+
+        {/* Optional Back Home */}
+        <button onClick={() => setIsSuccess(false)} className="mt-4 text-sm text-gray-500 hover:text-gray-700">
+          Join with another email
+        </button>
+      </div>
+    );
   }
 
   return (
