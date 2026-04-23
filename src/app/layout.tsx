@@ -21,6 +21,9 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "/",
   },
+  icons: {
+    icon: "/logo.png",
+  },
 };
 
 export default async function RootLayout({

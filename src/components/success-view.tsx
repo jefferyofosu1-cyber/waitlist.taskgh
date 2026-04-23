@@ -26,6 +26,11 @@ export function SuccessView({ referralUrl }: { referralUrl: string }) {
   return (
     <div className="min-h-screen flex items-center justify-center bg-white px-6">
       <div className="w-full max-w-md rounded-2xl shadow-xl border border-gray-100 p-8 text-center">
+        {/* Logo */}
+        <div className="mb-8 flex justify-center">
+          <img src="/logo.png" alt="TaskGH" className="h-10 w-auto" />
+        </div>
+
         {/* Success Icon */}
         <div className="mx-auto flex items-center justify-center w-20 h-20 rounded-full bg-green-100 mb-6">
           <svg
