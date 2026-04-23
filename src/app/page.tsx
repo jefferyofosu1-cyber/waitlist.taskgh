@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { Countdown } from "@/components/countdown";
 import { WaitlistForm } from "@/components/waitlist-form";
 
 export default async function Home({
@@ -36,7 +35,6 @@ export default async function Home({
               <Link href="#join" className="rounded-xl bg-blue-600 px-5 py-3 font-semibold text-white transition hover:bg-blue-500">
                 Join Waitlist
               </Link>
-              <Countdown launchDate="2026-07-01" />
             </div>
             <div className="mt-8 grid gap-3 sm:grid-cols-3">
               <Feature label="Verified artisans" />
