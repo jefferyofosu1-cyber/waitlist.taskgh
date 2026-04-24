@@ -40,6 +40,7 @@ export function AdminDashboard() {
   const [loadingMore, setLoadingMore] = useState(false);
   const [events, setEvents] = useState<NotificationEvent[]>([]);
   const [broadcasting, setBroadcasting] = useState(false);
+  const [broadcastingSms, setBroadcastingSms] = useState(false);
   const [broadcastResult, setBroadcastResult] = useState<{ successCount: number; failureCount: number } | null>(null);
   const encodedQuery = useMemo(() => encodeURIComponent(query), [query]);
 
@@ -118,6 +119,25 @@ export function AdminDashboard() {
     }
   }
 
+  async function handleBroadcastSms() {
+    if (!confirm("Are you sure you want to broadcast the referral SMS to ALL users? Check your FlashSMS balance first!")) return;
+    
+    setBroadcastingSms(true);
+    try {
+      const response = await fetch("/api/admin/broadcast-sms", { method: "POST" });
+      const data = await response.json();
+      if (response.ok) {
+        alert(`SMS Broadcast complete! Sent: ${data.successCount}, Failed: ${data.failureCount}`);
+      } else {
+        alert(`SMS Broadcast failed: ${data.error || "Unknown error"}`);
+      }
+    } catch (err) {
+      alert("SMS Broadcast failed due to a network error.");
+    } finally {
+      setBroadcastingSms(false);
+    }
+  }
+
   async function handleLogout() {
     await fetch("/api/admin/logout", { method: "POST" });
     window.location.href = "/admin/login";
@@ -146,10 +166,17 @@ export function AdminDashboard() {
           <div className="flex gap-2">
             <button
               onClick={handleBroadcast}
-              disabled={broadcasting}
+              disabled={broadcasting || broadcastingSms}
               className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-500 disabled:opacity-50"
             >
-              {broadcasting ? "Broadcasting…" : "Broadcast Referral Email"}
+              {broadcasting ? "Broadcasting Email…" : "Broadcast Referral Email"}
+            </button>
+            <button
+              onClick={handleBroadcastSms}
+              disabled={broadcasting || broadcastingSms}
+              className="rounded-xl bg-green-600 px-4 py-2 text-sm font-semibold text-white hover:bg-green-500 disabled:opacity-50"
+            >
+              {broadcastingSms ? "Broadcasting SMS…" : "Broadcast Referral SMS"}
             </button>
             <a href="/api/admin/export" className="rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white">
               Export CSV

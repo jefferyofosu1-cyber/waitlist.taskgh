@@ -101,6 +101,44 @@ export async function sendFlashSmsConfirmation(phoneNumber: string, firstName: s
   } satisfies ProviderResponse;
 }
 
+export async function sendFlashSms(phoneNumber: string, message: string) {
+  const env = getServerEnv();
+  const cleanPhone = phoneNumber.replace("+", "");
+  
+  const response = await fetch("https://app.flashsms.africa/api/v1/sms/send", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${env.flashSmsApiKey}`,
+    },
+    body: JSON.stringify({
+      senderId: env.flashSmsSenderId,
+      recipients: [cleanPhone],
+      message,
+    }),
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`FlashSMS broadcast failed: ${errorText}`);
+  }
+
+  const payload = (await response.json().catch(() => null)) as { 
+    success: boolean; 
+    data?: { messageId: string };
+    error?: string;
+  } | null;
+
+  if (payload?.success === false) {
+    throw new Error(`FlashSMS API Error: ${payload.error || "Unknown error"}`);
+  }
+
+  return {
+    externalMessageId: payload?.data?.messageId ?? null,
+    payload,
+  } satisfies ProviderResponse;
+}
+
 function buildBrandedWaitlistEmail(firstName: string, logoUrl?: string) {
   const logo = logoUrl
     ? `<img src="${logoUrl}" alt="TaskGH" style="height:36px;width:auto;" />`
