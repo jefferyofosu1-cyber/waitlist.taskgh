@@ -6,7 +6,13 @@ import { WaitlistUser } from "@/lib/supabase";
 type AdminResponse = {
   rows: WaitlistUser[];
   nextCursor: string | null;
-  stats: { total: number; today: number; filtered: number };
+  stats: { 
+    total: number; 
+    today: number; 
+    filtered: number;
+    totalViews: number;
+    todayViews: number;
+  };
 };
 
 type NotificationEvent = {
@@ -96,10 +102,11 @@ export function AdminDashboard() {
 
   return (
     <div className="space-y-6">
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card label="Total Signups" value={stats?.total ?? 0} />
         <Card label="Today Signups" value={stats?.today ?? 0} />
-        <Card label="Filtered Results" value={stats?.filtered ?? 0} />
+        <Card label="Total Page Views" value={stats?.totalViews ?? 0} accent="blue" />
+        <Card label="Today Page Views" value={stats?.todayViews ?? 0} accent="blue" />
       </div>
 
       <div className="rounded-2xl bg-white p-4 shadow ring-1 ring-slate-100 md:p-6">
@@ -243,11 +250,11 @@ export function AdminDashboard() {
   );
 }
 
-function Card({ label, value }: { label: string; value: number }) {
+function Card({ label, value, accent }: { label: string; value: number; accent?: "blue" }) {
   return (
-    <div className="rounded-2xl bg-white p-5 shadow ring-1 ring-slate-100">
+    <div className={`rounded-2xl bg-white p-5 shadow ring-1 ${accent === "blue" ? "ring-blue-100" : "ring-slate-100"}`}>
       <p className="text-sm text-slate-500">{label}</p>
-      <p className="mt-2 text-3xl font-bold text-slate-900">{value.toLocaleString()}</p>
+      <p className={`mt-2 text-3xl font-bold ${accent === "blue" ? "text-blue-600" : "text-slate-900"}`}>{value.toLocaleString()}</p>
     </div>
   );
 }

@@ -43,11 +43,16 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  const [listResult, totalResult, todayResult] = await Promise.all([
+  const [listResult, totalResult, todayResult, totalViewsResult, todayViewsResult] = await Promise.all([
     dbQuery,
     supabase.from("waitlist_users").select("id", { count: "exact", head: true }),
     supabase
       .from("waitlist_users")
+      .select("id", { count: "exact", head: true })
+      .gte("created_at", new Date(new Date().setHours(0, 0, 0, 0)).toISOString()),
+    supabase.from("page_views").select("id", { count: "exact", head: true }),
+    supabase
+      .from("page_views")
       .select("id", { count: "exact", head: true })
       .gte("created_at", new Date(new Date().setHours(0, 0, 0, 0)).toISOString()),
   ]);
@@ -70,6 +75,8 @@ export async function GET(request: NextRequest) {
       total: totalResult.count ?? 0,
       today: todayResult.count ?? 0,
       filtered: listResult.count ?? 0,
+      totalViews: totalViewsResult.count ?? 0,
+      todayViews: todayViewsResult.count ?? 0,
     },
   });
 }

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { WaitlistForm } from "@/components/waitlist-form";
+import { recordPageView } from "@/lib/analytics";
 
 export default async function Home({
   searchParams,
@@ -9,6 +10,9 @@ export default async function Home({
   const params = await searchParams;
   const source = params.utm_source ?? "direct";
   const referralCode = params.ref ?? "";
+
+  // Record page view
+  await recordPageView("/");
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900">
