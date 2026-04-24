@@ -39,6 +39,8 @@ export function AdminDashboard() {
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [events, setEvents] = useState<NotificationEvent[]>([]);
+  const [broadcasting, setBroadcasting] = useState(false);
+  const [broadcastResult, setBroadcastResult] = useState<{ successCount: number; failureCount: number } | null>(null);
   const encodedQuery = useMemo(() => encodeURIComponent(query), [query]);
 
   const fetchPage = useCallback(
@@ -95,6 +97,27 @@ export function AdminDashboard() {
     setStats((prev) => prev ? { ...prev, total: prev.total - 1, filtered: prev.filtered - 1 } : prev);
   }
 
+  async function handleBroadcast() {
+    if (!confirm("Are you sure you want to broadcast the referral email to ALL users? This action cannot be undone.")) return;
+    
+    setBroadcasting(true);
+    setBroadcastResult(null);
+    try {
+      const response = await fetch("/api/admin/broadcast", { method: "POST" });
+      const data = await response.json();
+      if (response.ok) {
+        setBroadcastResult({ successCount: data.successCount, failureCount: data.failureCount });
+        alert(`Broadcast complete! Sent: ${data.successCount}, Failed: ${data.failureCount}`);
+      } else {
+        alert(`Broadcast failed: ${data.error || "Unknown error"}`);
+      }
+    } catch (err) {
+      alert("Broadcast failed due to a network error.");
+    } finally {
+      setBroadcasting(false);
+    }
+  }
+
   async function handleLogout() {
     await fetch("/api/admin/logout", { method: "POST" });
     window.location.href = "/admin/login";
@@ -121,6 +144,13 @@ export function AdminDashboard() {
             className="w-full rounded-xl border border-slate-200 px-4 py-2 outline-none focus:border-blue-500 md:max-w-sm"
           />
           <div className="flex gap-2">
+            <button
+              onClick={handleBroadcast}
+              disabled={broadcasting}
+              className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-500 disabled:opacity-50"
+            >
+              {broadcasting ? "Broadcasting…" : "Broadcast Referral Email"}
+            </button>
             <a href="/api/admin/export" className="rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white">
               Export CSV
             </a>

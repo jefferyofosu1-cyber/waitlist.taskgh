@@ -33,6 +33,34 @@ export async function sendBrevoConfirmationEmail(email: string, firstName: strin
   } satisfies ProviderResponse;
 }
 
+export async function sendBrevoEmail(email: string, subject: string, html: string) {
+  const env = getServerEnv();
+  const response = await fetch("https://api.brevo.com/v3/smtp/email", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "api-key": env.brevoApiKey,
+    },
+    body: JSON.stringify({
+      sender: { name: env.brevoSenderName, email: env.brevoSenderEmail },
+      to: [{ email }],
+      subject,
+      htmlContent: html,
+    }),
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Brevo broadcast failed: ${errorText}`);
+  }
+
+  const payload = (await response.json().catch(() => null)) as { messageId?: string } | null;
+  return {
+    externalMessageId: payload?.messageId ?? null,
+    payload,
+  } satisfies ProviderResponse;
+}
+
 export async function sendFlashSmsConfirmation(phoneNumber: string, firstName: string) {
   const env = getServerEnv();
   // Ensure phone is clean (strip + for the gateway)
